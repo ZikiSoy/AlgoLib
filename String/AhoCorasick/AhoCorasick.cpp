@@ -3,60 +3,65 @@
 
 using namespace std;
 
+int idx(char c) { 
+	if (c == 'A') return 0;
+	if (c == 'T') return 1;
+	if (c == 'C') return 2;
+	if (c == 'G') return 3;
+}
+
 struct AhoCorasick {
-  static const int NONE = 0;
-  static const int MAXN = 1024;
-  static const int CHARSET = 26;
+  static const int maxnode = 200005;
+  static const int sigma_size = 26;
+  
+	int ch[maxnode][sigma_size]; //child
+	int f[maxnode]; //fail 
+	int val[maxnode]; //value
+	int match[maxnode]; //max match
+	int len[maxnode]; //length of a node
+	int sz; //size
+	void reset() { sz = 1; memset(ch[0], 0, sizeof(ch[0])); }
 
-  int end;
-  int tag[MAXN];
-  int fail[MAXN];
-  int trie[MAXN][CHARSET];
+	void insert(char *s, int v) {
+		int u = 0, n = strlen(s);
+		for (int i = 0; i < n; i++) {
+			int c = idx(s[i]);
+			if (!ch[u][c]) {
+				memset(ch[sz], 0, sizeof(ch[sz]));
+				match[sz] = val[sz] = 0;
+				len[sz] = len[u] + 1;
+				ch[u][c] = sz++;
+			}
+			u = ch[u][c];
+		}
 
-  void init() {
-    tag[0] = NONE;
-    fill(trie[0], trie[0] + CHARSET, -1);
-    end = 1;
-  }
+		match[u] = n;
+		val[u] = v;
+	}
 
-  int add(int m, const int* s) {
-    int p = 0;
-    for (int i = 0; i < m; ++i) {
-      if (trie[p][*s] == -1) {
-        tag[end] = NONE;
-        fill(trie[end], trie[end] + CHARSET, -1);
-        trie[p][*s] = end++;
-      }
-      p = trie[p][*s];
-      ++s;
-    }
-    return p;
-  }
+	int getFail() {
+		queue<int> q;
+		f[0] = 0;
 
-  void build() {  // !!
-    queue<int> bfs;
-    fail[0] = 0;
-    for (int i = 0; i < CHARSET; ++i) {
-      if (trie[0][i] != -1) {
-        fail[trie[0][i]] = 0;
-        bfs.push(trie[0][i]);
-      } else {
-        trie[0][i] = 0;
-      }
-    }
-    while (!bfs.empty()) {
-      int p = bfs.front();
-      tag[p] |= tag[fail[p]];
-      bfs.pop();
-      for (int i = 0; i < CHARSET; ++i) {
-        if (trie[p][i] != -1) {
-          fail[trie[p][i]] = trie[fail[p]][i];
-          bfs.push(trie[p][i]);
-        } else {
-          trie[p][i] = trie[fail[p]][i];
-        }
-      }
-    }
-  }
+		for (int c = 0; c < sigma_size; c++) {
+			int u = ch[0][c];
+			if (u) { f[u] = 0; q.push(u); }
+		}
+
+		while (!q.empty()) {
+			int r = q.front(); q.pop();
+			for (int c = 0; c < sigma_size; c++) {
+				int &v = ch[r][c];
+				if (!v) { 
+					v = ch[f[r]][c]; 
+				} else {
+					q.push(v);
+					f[v] = ch[f[r]][c];
+					val[v] = val[v]|val[f[v]];
+					match[v] = max(match[v], match[f[v]]);
+				}
+			}
+		}
+	}
 } ac;
 
