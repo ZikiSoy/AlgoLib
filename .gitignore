@@ -1,0 +1,6 @@
+*.o
+*.doc
+*.pdf
+todo
+prob
+t/gtest_main

@@ -5,10 +5,10 @@
 
 using namespace std;
 
-template<int MAXN>
+// TODO: cannot handle duplicate edges
 struct Tarjan {
   int n;
-  vector<int> e[MAXN];
+  vector<vector<int> > e;
 
   vector<int> cut;
   vector<pair<int, int> > bridge;
@@ -16,18 +16,19 @@ struct Tarjan {
 
   void init(int n) {
     this->n = n;
-    for (int i = 0; i < n; ++i) {
-      e[i].clear();
-    }
+    e.clear();
+    e.resize(n);
+    dfn.resize(n);
+    low.resize(n);
   }
 
   void add(int a, int b) {
-    // assert(find(a.begin(), a.end(), b) == a.end());
+    // assert(find(e[a].begin(), e[a].end(), b) == e[a].end());
     e[a].push_back(b);
     e[b].push_back(a);
   }
 
-  int dfn[MAXN], low[MAXN];
+  vector<int> dfn, low;
   int timestamp;
   stack<pair<int, int> > s;
 
@@ -71,7 +72,7 @@ struct Tarjan {
 
     timestamp = 0;
     stack<pair<int, int> >().swap(s);
-    fill(dfn, dfn + n, -1);
+    fill(dfn.begin(), dfn.end(), -1);
 
     for (int i = 0; i < n; ++i) {
       if (dfn[i] == -1) {

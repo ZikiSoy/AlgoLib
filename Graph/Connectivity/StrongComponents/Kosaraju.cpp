@@ -3,25 +3,21 @@
 
 using namespace std;
 
-template<int MAXN>
-struct SCC {
+struct SCCKosaraju {
   int n;
-  vector<int> e[MAXN];
-  vector<int> re[MAXN];
+  vector<vector<int> > e, re;
 
-  int id[MAXN];
+  vector<int> id;
   vector<vector<int> > scc;
 
   void init(int n) {
     this->n = n;
-    for (int i = 0; i < n; ++i) {
-      e[i].clear();
-      re[i].clear();
-    }
+    vector<vector<int> >(n).swap(e);
+    vector<vector<int> >(n).swap(re);
+    id.resize(n);
   }
 
   void add(int a, int b) {
-    // assert(find(a.begin(), a.end(), b) == a.end());
     e[a].push_back(b);
     re[b].push_back(a);
   }
@@ -50,7 +46,7 @@ struct SCC {
 
   int gao() {
     todo.clear();
-    fill(id, id + n, -1);
+    fill(id.begin(), id.end(), -1);
     for (int i = 0; i < n; ++i) {
       if (id[i] == -1) {
         dfs(i);
@@ -59,7 +55,7 @@ struct SCC {
 
     scc.clear();
     reverse(todo.begin(), todo.end());
-    fill(id, id + n, -1);
+    fill(id.begin(), id.end(), -1);
     for (int i = 0; i < n; ++i) {
       if (id[todo[i]] == -1) {
         scc.push_back(vector<int>());
