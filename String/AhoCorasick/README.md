@@ -7,3 +7,4 @@
 #### Prob
 
 
+* [CodeForces - Genetic engineering](http://codeforces.com/problemset/problem/86/C)
